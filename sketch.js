@@ -5,7 +5,7 @@ let projectName = "Flow-Fields-";
 let globalScaling = getUrlParam("scaling", 1)
 
 // Flow field settings
-let startSeed = parseInt(getUrlParam("seed", 139)) //floor(random(2000,100000));
+let startSeed = parseInt(getUrlParam("seed", generateDailySeed())) //floor(random(2000,100000));
 let endSeed = 1250;
 let aliasScaling = parseFloat(getUrlParam("aliasScaling", 1.0)); // render high res, then reduce res and blur for better video.
 let numVideosToGenerate = endSeed - startSeed; // Total number of fields to generate
@@ -146,6 +146,12 @@ function resetCanvas() {
   fields = [];
   noStroke();
   background(0);
+}
+
+function generateDailySeed() {
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    return seed;
 }
 
 function createFlowFieldWithRandomSettings(seed) {
