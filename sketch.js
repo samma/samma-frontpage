@@ -150,7 +150,7 @@ function resetCanvas() {
 
 function generateHourlySeed() {
     const now = new Date();
-    const seed = now.getFullYear() * 1000000 + (now.getMonth() + 1) * 10000 + now.getDate() * 100 + now.getHours();
+    const seed = now.getFullYear() * 1000000 + (now.getMonth() + 1) * 10000 + now.getDate() * 100 + now.getMilliseconds();
     return seed;
 }
 
