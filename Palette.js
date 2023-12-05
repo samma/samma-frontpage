@@ -5,6 +5,9 @@ class Palette {
   }
 
   addColor(color) {
+
+    // Reduce alpha
+    color.setAlpha(50);
     this.colors.push(color);
   }
 

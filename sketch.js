@@ -204,6 +204,8 @@ function createFlowFieldWithRandomSettings(seed) {
   let sumNumberOfFlows = getNumberofFlow(numberOfFlows, griddivs);
   let gridDivsAsString = numberToReadableString(griddivs);
 
+  let sizeMultiplier = 2.0;
+
   console.log("numberOfFlows: ", numberOfFlows);
   console.log("sumNumberOfFlows: ", sumNumberOfFlows);
 
@@ -234,7 +236,8 @@ function createFlowFieldWithRandomSettings(seed) {
     "numFrames": numberOfFramesToRecord,
     "sumColors": sumColors,
     "gridDivsAsString": gridDivsAsString,
-    "lineMode": lineMode
+    "lineMode": lineMode,
+    "sizeMultiplier" : sizeMultiplier
   };
 
   // Print settings to console
@@ -244,7 +247,7 @@ function createFlowFieldWithRandomSettings(seed) {
   for (let i = 0; i < gridCoordinates.length; i++) {
     let x = gridCoordinates[i].x;
     let y = gridCoordinates[i].y;
-    fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfFlows, backgroundColor, palettes[i], marginBetweenFields, griddivs, lineMode));
+    fields.push(new FlowField(x, y, gridSize, gridSize, screenDivisions, turbulence, velocity, numberOfFlows, backgroundColor, palettes[i], marginBetweenFields, griddivs, lineMode, sizeMultiplier));
   }
 
   let metaData = generateMetaData(settings);
