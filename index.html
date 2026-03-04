@@ -89,6 +89,11 @@
             text-decoration: underline;
         }
 
+        /* Prevent viewport overflow on small screens */
+        body {
+            overflow: hidden;
+        }
+
         /* Grain texture overlay — sits behind the art canvas */
         body::before {
             content: '';
@@ -155,5 +160,41 @@
 
 <!-- import the javascript sketch file -->
 <script src="./sketch.js"></script>
+
+<script>
+(function () {
+    var PADDING = 24; // breathing room (px) on each side on mobile
+
+    function scaleArtwork() {
+        var container = document.getElementById('snake-container');
+        if (!container || !container.offsetWidth) return;
+
+        var natural = container.offsetWidth; // canvas is square
+        var maxFit = Math.min(window.innerWidth, window.innerHeight) - PADDING * 2;
+        var scale = Math.min(maxFit / natural, 1);
+
+        if (scale < 1) {
+            var pull = natural * (1 - scale) / 2; // negative margin to collapse unused layout space
+            container.style.transform = 'scale(' + scale + ')';
+            container.style.transformOrigin = 'center center';
+            container.style.margin = (-pull) + 'px';
+        } else {
+            container.style.transform = '';
+            container.style.margin = '';
+        }
+    }
+
+    window.addEventListener('resize', scaleArtwork);
+
+    // Poll until snake.js has created and populated #snake-container
+    var poll = setInterval(function () {
+        var c = document.getElementById('snake-container');
+        if (c && c.offsetWidth > 0) {
+            clearInterval(poll);
+            scaleArtwork();
+        }
+    }, 100);
+})();
+</script>
 
 </html>
