@@ -27,6 +27,10 @@ const numSecondsToSkipAtStart = 0.5; // Skip some at the start, to avoid boring 
 const numFramesToSkipAtStart = videofrate * numSecondsToSkipAtStart;
 
 let fields = [];
+let _oldFields = [];          // fields from previous artwork, kept alive during blend
+let _blendActive = false;     // true while old and new art are both animating
+let _blendFrame = 0;
+const BLEND_TOTAL_FRAMES = 180; // 6s at 30fps — bottom-left corner to top-right corner
 let canvasSize = globalScaling * aliasScaling * 800;
 var frameCount = 0;
 
@@ -61,6 +65,7 @@ function setup() {
     renderVideos(numVideosToGenerate, startSeed).then(() => { console.log("Done end of setup"); });
   } else { // Just draw fields to screen
     createFlowFieldWithRandomSettings(startSeed);
+    initSnake();
   }
 }
 
@@ -83,12 +88,47 @@ async function renderVideos(numVideosToGenerate, defaultseed) {
 }
 
 function anim() {
-  // Draw the flow field
+  if (_blendActive) {
+    _blendFrame++;
+    const t = min(_blendFrame / BLEND_TOTAL_FRAMES, 1);
+    // Sine ease: slow at start and end, faster in the middle
+    const eased = 0.5 * (1 - cos(PI * t));
+
+    // Old art keeps animating — drawn first so the wash covers it
+    for (let i = 0; i < _oldFields.length; i++) {
+      _oldFields[i].update();
+    }
+
+    // Wash: a semi-transparent rect of the NEW background color drawn each frame.
+    // It gradually buries old particle trails while new ones build on top.
+    // Alpha ramps from ~2 (barely noticeable) up to ~8 (faster coverage) then back.
+    const washAlpha = floor(2 + eased * 6);
+    noStroke();
+    colorMode(RGB);
+    fill(red(backgroundColor), green(backgroundColor), blue(backgroundColor), washAlpha);
+    rect(0, 0, canvasSize, canvasSize);
+
+    // New art animates on top of the wash — it emerges through the background colour
+    for (let i = 0; i < fields.length; i++) {
+      fields[i].update();
+    }
+
+    if (t >= 1) {
+      _oldFields = [];
+      _blendActive = false;
+      // No hard background() call here — by 120 frames the wash has already
+      // covered ~95% of old content, so there's nothing abrupt to snap away.
+    }
+
+    if (drawColorRect) drawColorDebugRect();
+    return;
+  }
+
+  // Normal (non-transition) frame
   for (let i = 0; i < fields.length; i++) {
     fields[i].update();
   }
 
-  // Draw a rectangle in the bottom right corner
   if (drawColorRect) {
     drawColorDebugRect();
   }
@@ -148,13 +188,42 @@ function resetCanvas() {
   background(0);
 }
 
+// Called by snake.js after one full clockwise lap — spawns a fresh artwork.
+// Does NOT call initSnake(); the snake loop keeps running uninterrupted.
+function restartArtwork() {
+  fields = [];
+  startSeed = generateHourlySeed();
+  createFlowFieldWithRandomSettings(startSeed);
+}
+
+// Called by snake.js at the start of the transition window.
+// Keeps old fields alive and starts new ones on the same canvas simultaneously.
+// A per-frame background wash in anim() gradually buries the old art while
+// the new art builds up — both are truly animating at the same time.
+function startArtworkTransition() {
+  if (_blendActive) return; // don't stack transitions
+  _oldFields = fields;      // keep old fields animating
+  fields = [];              // new fields go here
+  startSeed = generateHourlySeed();
+
+  // Suppress FlowField.drawBackground() during construction — without this each
+  // new FlowField would immediately paint a solid rect over the live old art.
+  const origDrawBg = FlowField.prototype.drawBackground;
+  FlowField.prototype.drawBackground = function() {};
+  createFlowFieldWithRandomSettings(startSeed, true); // also skips background() in sketch
+  FlowField.prototype.drawBackground = origDrawBg;
+
+  _blendActive = true;
+  _blendFrame = 0;
+}
+
 function generateHourlySeed() {
     const now = new Date();
     const seed = now.getFullYear() * 1000000 + (now.getMonth() + 1) * 10000 + now.getDate() * 100 + now.getMilliseconds();
     return seed;
 }
 
-function createFlowFieldWithRandomSettings(seed) {
+function createFlowFieldWithRandomSettings(seed, skipBackground = false) {
 
   // Playing around with seed numbers because it seems seeds close to eachother are to similar
 
@@ -210,7 +279,7 @@ function createFlowFieldWithRandomSettings(seed) {
   console.log("sumNumberOfFlows: ", sumNumberOfFlows);
 
   backgroundColor = selectBackgroundColor();
-  background(backgroundColor)
+  if (!skipBackground) background(backgroundColor);
 
   // 50 % chance of this being true
   let lineMode = selectLineMode();
