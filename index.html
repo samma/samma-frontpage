@@ -26,6 +26,69 @@
             box-shadow: 0 0 90px 40px rgba(0, 0, 0, 0.65);
         }
 
+        /* Info button */
+        #info-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(30, 18, 8, 0.55);
+            color: rgba(255, 255, 255, 0.45);
+            font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
+            font-size: 15px;
+            line-height: 28px;
+            text-align: center;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+            z-index: 100;
+            user-select: none;
+        }
+        #info-btn:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(30, 18, 8, 0.8);
+        }
+
+        /* Info panel */
+        #info-panel {
+            position: fixed;
+            bottom: 60px;
+            right: 24px;
+            background: rgba(26, 16, 8, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 16px 20px;
+            backdrop-filter: blur(10px);
+            color: rgba(255, 255, 255, 0.7);
+            font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
+            font-size: 15px;
+            line-height: 1.8;
+            letter-spacing: 0.02em;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(6px);
+            transition: opacity 0.25s, transform 0.25s;
+            white-space: nowrap;
+        }
+        #info-panel.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        #info-panel a {
+            color: rgba(200, 170, 130, 0.9);
+            text-decoration: none;
+        }
+        #info-panel a:hover {
+            color: rgba(220, 195, 155, 1);
+            text-decoration: underline;
+        }
+
         /* Grain texture overlay — sits behind the art canvas */
         body::before {
             content: '';
@@ -40,6 +103,30 @@
 </head>
 
 <body>
+<!-- Info button -->
+<div id="info-btn" title="About">i</div>
+<div id="info-panel">
+    <div>Flow Fields &mdash; Samma, 2021</div>
+    <div><a href="mailto:samma@samma.no">samma@samma.no</a></div>
+    <div><a href="https://github.com/samma/samma-frontpage" target="_blank" rel="noopener">github.com/samma/samma-frontpage</a></div>
+</div>
+<script>
+    (function () {
+        var btn = document.getElementById('info-btn');
+        var panel = document.getElementById('info-panel');
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            panel.classList.toggle('visible');
+        });
+        document.addEventListener('click', function () {
+            panel.classList.remove('visible');
+        });
+        panel.addEventListener('click', function (e) {
+            e.stopPropagation(); // keep panel open when clicking links inside
+        });
+    })();
+</script>
+
 <!-- Hidden SVG that defines the grain filter used by body::before -->
 <svg width="0" height="0" style="position:absolute;overflow:hidden;">
     <defs>
