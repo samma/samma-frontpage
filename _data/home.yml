@@ -1,0 +1,29 @@
+# All text and links on the front page (samma.no and samma.no/en/).
+# Edit only what is inside the quotes. An empty "" hides that line or link.
+
+contact:
+  email: "contact@samma.no"
+  github: ""    # full address, e.g. https://github.com/username
+  linkedin: "https://linkedin.com/in/torgeirlien"
+
+# Norwegian: samma.no
+nb:
+  title: "Samma"
+  building_heading: "Under utvikling"
+  building: "Agentbasert innhenting og overføring av kunnskap i organisasjoner."
+  early_access: "Interessert i tidlig tilgang? Ta kontakt."
+  consulting_heading: "Konsulentoppdrag"
+  consulting: ""
+  contact_heading: "Kontakt"
+  other_language: "English"
+
+# English: samma.no/en/
+en:
+  title: "Samma"
+  building_heading: "In development"
+  building: "Agentic knowledge transfer and harvesting in organisations."
+  early_access: "Interested in early access? Get in touch."
+  consulting_heading: "Consulting"
+  consulting: ""
+  contact_heading: "Contact"
+  other_language: "Norsk"
